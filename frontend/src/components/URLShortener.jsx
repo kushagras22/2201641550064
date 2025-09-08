@@ -77,7 +77,7 @@ export const URLShortener = ({ addShortenedUrl, shortenedUrls }) => {
             const urlData = {
                 originalUrl: input.url,
                 shortCode: finalShortCode,
-                shortUrl: `${window.location.origin}/${finalShortCode}`,
+                shortUrl: `https://sh.url/${finalShortCode}`,
                 creationDate: creationDate.toISOString(),
                 expiryDate: expiryDate.toISOString(),
                 clicks: 0,
