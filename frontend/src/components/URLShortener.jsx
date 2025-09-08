@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { generateShortCode, isValidUrl } from "../utils/helper";
+import { UrlInput } from "./URLInput";
+import { ResultsDisplay } from "./ResultDisplay";
 
 export const URLShortener = ({ addShortenedUrl, shortenedUrls }) => {
     const [inputs, setInputs] = useState([{ id: 1, url: '', shortCode: '', validity: '30' }]);
