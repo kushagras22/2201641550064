@@ -113,3 +113,49 @@ A shortened URL entry has the following shape:
 - Redirection and persistence live in `App.jsx`.
 - Styles are defined in `src/index.css`; add tokens or component styles there.
 - Add new tabs by extending `TabNavigation.jsx` and rendering content in `App.jsx`.
+
+### Logging middleware
+This project includes a small HTTP-based logging helper to send structured logs to an external log server.
+
+- **Locations**:
+  - Root: `middleware/log.js` (generic, parameterized)
+  - Frontend: `frontend/src/middleware/log.js` (browser-ready)
+
+- **Configuration**:
+  - Set the log server base URL via one of the following (first non-empty wins):
+    - `import.meta.env.VITE_LOG_SERVER_URL`
+    - `process.env.VITE_LOG_SERVER_URL`
+    - `process.env.LOG_SERVER_URL`
+  - Fallback: `https://example-log-server.invalid`
+  - Requests are sent to the `POST /log` endpoint with `application/json` and a 4s timeout (Axios).
+
+- **Payload shape**:
+```json
+{
+  "stack": "frontend | backend | worker",
+  "level": "debug | info | warn | error",
+  "package": "module-or-feature-name",
+  "message": "human-readable message",
+  "timestamp": "ISO-8601",
+  "userAgent": "<browser UA>"
+}
+```
+
+- **Usage (recommended)**:
+```js
+import Log from "../middleware/log"; // adjust path as needed
+
+// Send an informational log
+await Log("frontend", "info", "ui", "User clicked shorten button");
+
+// Report an error
+await Log("frontend", "error", "shortener", error?.message || String(error));
+```
+
+- **Behavior**:
+  - On failure to reach the log server, a warning is printed to the browser console; the app flow is not blocked.
+  - The root helper (`middleware/log.js`) uses the provided arguments. The frontend helper currently posts a sample payload; adapt it to pass through the provided `stack`, `level`, `packageName`, and `message` in production.
+
+- **Assumptions**:
+  - The external log service exposes `POST /log` and accepts the payload above.
+  - No PII is included by default; callers are responsible for sanitizing messages.
